@@ -13,11 +13,14 @@ import (
     "github.com/gin-gonic/gin"
     "github.com/russross/blackfriday"
     _ "github.com/lib/pq"
+    "github.com/jinzhu/gorm"    
+    _ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 var (
     repeat int
     db     *sql.DB
+    db2    *gorm.DB
 )
 
 func repeatFunc(c *gin.Context) {
@@ -60,6 +63,24 @@ func dbFunc(c *gin.Context) {
     }
 }
 
+type User struct {
+  gorm.Model
+  Name string
+}
+
+func dbGormFunc(c *gin.Context) {
+
+ 	if !db2.HasTable("users") {
+		db2.CreateTable(&User{})
+  	}
+	
+	user := User{Name: "Gilad"}
+	db2.Create(&user)
+
+	uu := db2.Last(&user)
+   c.String(http.StatusOK, fmt.Sprintf("Read from DB: %s\n", uu))
+}
+
 func main() {
     port := os.Getenv("PORT")
 
@@ -68,6 +89,8 @@ func main() {
     }
 
     var err error
+    var err2 error
+
     tStr := os.Getenv("REPEAT")
     repeat, err = strconv.Atoi(tStr)
     if err != nil {
@@ -78,6 +101,11 @@ func main() {
     db, err = sql.Open("postgres", os.Getenv("DATABASE_URL"))
     if err != nil {
         log.Fatalf("Error opening database: %q", err)
+    }
+
+	db2, err2 = gorm.Open("postgres", os.Getenv("DATABASE_URL"))
+    if err2 != nil {
+        log.Fatalf("Error opening database: %q", err2)
     }
 
     router := gin.New()
