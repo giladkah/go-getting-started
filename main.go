@@ -77,7 +77,7 @@ func dbGormFunc(c *gin.Context) {
 	user := User{Name: "Gilad"}
 	db2.Create(&user)
 
-	uu := db2.Last(&user)
+	uu := db2.Find(&user)
    c.String(http.StatusOK, fmt.Sprintf("Read from DB: %s\n", uu))
 }
 
