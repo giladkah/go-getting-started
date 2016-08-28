@@ -123,6 +123,7 @@ func main() {
 
     router.GET("/repeat", repeatFunc)
     router.GET("/db", dbFunc)
+    router.GET("/db2", dbGormFunc)
 
     router.Run(":" + port)
 }
